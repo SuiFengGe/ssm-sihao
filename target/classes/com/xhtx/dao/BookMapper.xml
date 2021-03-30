@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xhtx.dao.BookMapper">
+
+
+
+    <insert id="addBook" parameterType="Books">
+        insert into ssmbuild.books(bookName, bookCounts, aid)
+        values (#{bookName},#{bookCounts},#{aid});
+    </insert>
+
+    <delete id="deleteBookById" parameterType="int">
+        delete from ssmbuild.books where bookID = #{bookID};
+    </delete>
+
+    <update id="resetID1">
+        ALTER TABLE ssmbuild.books DROP `bookID`;
+    </update>
+    <update id="resetID2">
+        ALTER TABLE ssmbuild.books ADD bookID MEDIUMINT(8) NOT NULL PRIMARY KEY AUTO_INCREMENT FIRST;
+    </update>
+
+
+
+    <update id="updateBook" parameterType="Books">
+        update ssmbuild.books
+        set bookName=#{bookName},bookCounts=#{bookCounts},aid=#{aid}
+        where bookID = #{bookID}
+    </update>
+    
+    <select id="queryBookById" resultType="Books">
+        select * from ssmbuild.books where bookID = #{bookID}
+    </select>
+
+
+
+    <select id="queryAllBook" resultType="Books">
+        select * from ssmbuild.books
+    </select>
+    
+    <select id="queryBookByName" resultType="Books">
+        select * from ssmbuild.books where bookName like '%${bookName}%'
+    </select>
+
+    <!--查询总记录数-->
+    <select id="findTotalCount" resultType="int">
+        select count(*) from ssmbuild.books
+    </select>
+
+    <!--查询模糊查询的总记录数-->
+    <select id="queryBookByLikeName" resultType="int">
+        select count(*) from ssmbuild.books where bookName like '%${bookName}%'
+    </select>
+
+    <!--分页显示十条使用模糊查询查出的数据-->
+    <select id="tenResult" resultMap="BookAuthor2">
+        select * from ssmbuild.books where bookName like '%${bookName}%' limit #{startRow},10
+    </select>
+    <resultMap id="BookAuthor2" type="Books">
+        <result property="bookID" column="bookID"/>
+        <result property="bookName" column="bookName"/>
+        <result property="bookCounts" column="bookCounts"/>
+        <association property="author" column="aid" javaType="Author" select="getAuthor2"/>
+    </resultMap>
+    <select id="getAuthor2" resultType="Author">
+        select * from ssmbuild.author where authorID = #{authorID}
+    </select>
+
+    <!--分页查询十条数据-->
+    <select id="tenCount" resultMap="BookAuthor">
+        select * from ssmbuild.books limit #{startRow},10
+    </select>
+    <resultMap id="BookAuthor" type="Books">
+        <result property="bookID" column="bookID"/>
+        <result property="bookName" column="bookName"/>
+        <result property="bookCounts" column="bookCounts"/>
+        <association property="author" column="aid" javaType="Author" select="getAuthor"/>
+    </resultMap>
+    <select id="getAuthor" resultType="Author">
+        select * from ssmbuild.author where authorID = #{authorID}
+    </select>
+
+
+</mapper>
